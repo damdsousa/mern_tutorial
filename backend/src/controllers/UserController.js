@@ -27,6 +27,18 @@ module.exports = {
         }
     },
 
+    async getAllUsers(req, res){      
+        try {
+            const users = await User.find({}) //devolve todos os users na DB
+            if(users){
+                return res.json(users);
+            }
+        } catch (error) {
+            return res.status(400).json({message: 'There are no users created.'})
+        }
+        
+    },
+
     async getUserById(req, res){
         const {userId} = req.params;
 
