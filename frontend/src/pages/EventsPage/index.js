@@ -4,7 +4,7 @@ import { Form, FormGroup, Input, Button, Container, Label, Alert} from 'reactstr
 import cameraIcon from "../../assets/camera.png"; 
 import "./events.css"
 //EventsPage will show all the events
-export default function EventsPage() {
+export default function EventsPage({history}) {
     const user_id = localStorage.getItem('user');
     console.log(user_id);
 
@@ -14,13 +14,13 @@ export default function EventsPage() {
     const [thumbnail, setThumbnail] = useState(null);
     const [date, setDate] = useState('');
     const [sport, setSport] = useState('');
-    const [errorMessage, setErrorMessage] = useState(false);
+    const [error, setError] = useState(false);
+    const [success, setSuccess] = useState(false);
 
     const preview = useMemo(() =>{
         return thumbnail ? URL.createObjectURL(thumbnail) : null;
     }, [thumbnail]) //useMemo e triggered quando o valor de thumbnail e alterado
 
-    console.log(title, description, sport, date, price );
 
     const submitHandler = async (evt) => {
         evt.preventDefault(); 
@@ -45,14 +45,17 @@ export default function EventsPage() {
                 date !== "" &&
                 thumbnail !== null
             ){
-                console.log(eventData);
                 console.log("Event has been sent.");
                 await api.post("/event", eventData, {headers:{user_id}});
                 console.log("Event has been saved.")
-            } else {
-                setErrorMessage(true)
+                setSuccess(true);
                 setTimeout(()=> {
-                    setErrorMessage(false)
+                    setSuccess(false)
+                }, 2000)
+            } else {
+                setError(true)
+                setTimeout(()=> {
+                    setError(false)
                 }, 2000)
                 console.log("Missing required data.")
             }
@@ -95,12 +98,22 @@ export default function EventsPage() {
                     <Label>Price:</Label>
                     <Input id="price" type="number" value={price} placeholder={'Event Price'} onChange={(evt) => setPrice(evt.target.value)}/>
                 </FormGroup>
-                <Button>
-                    Create Event
-                </Button>
+                <FormGroup>
+                    <Button className="submit-btn">
+                        Create Event
+                    </Button>
+                </FormGroup>
+                <FormGroup>
+                <Button className="secundary-btn" onClick={()=> history.push("/dashboard")}>
+                        Cancel Event
+                    </Button>
+                </FormGroup>
             </Form>
-            {errorMessage ? (
+            {error ? (
                 <Alert className="event-validation" color="danger">Missing required information.</Alert>
+            ) : ""}
+            {success ? (
+                <Alert className="event-validation" color="sucsess">Event was created.</Alert>
             ) : ""}
         </Container>
     )
